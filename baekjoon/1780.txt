@@ -1,0 +1,38 @@
+#include <iostream>
+
+using namespace std;
+
+int N, A[2187][2187], ans[3] = {};
+
+void DQ(int N, int x, int y) {
+	bool check = false;
+	int cnt_1 = 0, i = x;
+	while(!check && cnt_1 < N) {
+		int cnt_2 = 0, j = y;
+		while(cnt_2 < N) {
+			if (A[x][y] != A[i][j]) {
+				check = true;
+				break;
+			}
+			j++; cnt_2++;
+		}
+		i++; cnt_1++;
+	}
+	if (check) {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				DQ(N / 3, x + N / 3 * i, y + N / 3 * j);
+			}
+		}
+	}
+	else ans[A[x][y] + 1]++;
+}
+
+int main() {
+	cin >> N;
+	for (int i = 0; i < N; i++) for (int j = 0; j < N; j++) cin >> A[i][j];
+
+	DQ(N, 0, 0);
+
+	for (int i = 0; i < 3; i++) cout << ans[i] << endl;
+}

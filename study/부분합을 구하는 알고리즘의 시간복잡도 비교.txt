@@ -1,0 +1,65 @@
+#include <iostream>
+#include <vector>
+#include <time.h>
+#include <algorithm>
+using namespace std;
+
+//부분합의 최대값을 구하는 알고리즘의 시간복잡도 비교
+
+int bigONSquare(const vector<int> &A, int N) { // 이중 for문을 통한 계산
+	int ret = 0;
+	for (int i = 0; i < N; i++) {
+		int sum = 0;
+		for (int j = i; j < N; j++) {
+			sum += A[j];
+			ret = max(sum, ret);
+		}
+	}
+	return ret;
+}
+
+int bigONlgN(const vector<int> &A, int s, int e) { // 분할정복을 통한 계산
+	if (A.size() == 1) {
+		if (A[s] < 0) return 0;
+		else return A[s];
+	}
+	if (s == e) return A[s];
+
+	int mid = (s + e) / 2, L = numeric_limits<int>::min(), R = numeric_limits<int>::min(), sum = 0;
+	for (int i = mid; i >= s; i--) {
+		sum += A[i];
+		if (L < sum) L = sum;
+	}
+	if (L < 0) L = 0;
+	sum = 0;
+	for (int i = mid + 1; i <= e; i++) {
+		sum += A[i];
+		if (R < sum) R = sum;
+	}
+	if (R < 0) R = 0;
+
+	return max(L + R, max(bigONlgN(A, s, mid), bigONlgN(A, mid + 1, e)));
+}
+
+int bigON(const vector<int> &A, int N) { // DP를 통한 계산
+	int psum = 0, ret = 0;
+	for (int i = 0; i < N; i++) {
+		psum = max(psum, 0) + A[i]; // 음수가 되어도 일단 더해
+		ret = max(psum, ret); // 어차피 최대는 여기. 최대를 따로 담을 변수가 있다.
+	}
+	return ret;
+}
+
+int main() {
+	srand(time(NULL));
+	int N = rand() % 10 + 1;
+	vector<int> A;
+	for (int i = 0; i < N; i++) A.push_back(rand() % 21 - 10);
+
+	cout << N << endl;
+	for (auto it : A) cout << it << " ";
+	cout << endl;
+	cout << "bigONSquare : " << bigONSquare(A, N) << endl;
+	cout << "bigONlgN : " << bigONlgN(A, 0, N - 1) << endl;
+	cout << "bigON : " << bigON(A, N) << endl;
+}

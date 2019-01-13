@@ -1,0 +1,82 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+typedef vector<int> veci;
+
+void normalize(veci &a) {
+	int len = a.size();
+	for (int i = 0; i < len - 1; i++) {
+		if (a[i] < 0) {
+			int num = (abs(a[i]) + 9) / 10;
+			a[i + 1] -= num;
+			a[i] += num * 10;
+		}
+		else {
+			a[i + 1] += a[i] / 10;
+			a[i] %= 10;
+		}
+	}
+	if (a[len - 1] >= 10) {
+		a.push_back(a[len - 1] / 10);
+		a[len - 1] %= 10;
+	}
+	else if (a[len - 1] == 0) a.pop_back();
+}
+
+veci multifly(veci &a, veci &b) {
+	int len = a.size() + b.size() + 1;
+	veci c(len);
+
+	
+	return veci(0);
+
+}
+
+void addTo(veci &a, veci &b, int k) {
+	int len = b.size;
+	for (int i = 0; i < len; i++) a[k + i] += b[i];
+	normalize(a);
+}
+
+void subFrom(veci &a, veci &b) {
+	int len = b.size();
+	for (int i = 0; i < len; i++) a[i] -= b[i];
+	normalize(a);
+}
+
+veci karathuba(veci &a, veci &b) { // º¤ÅÍÀÇ ÀÎµ¦½º°¡ ÀÚ¸®¼ö
+	if (a.empty() || b.empty()) return veci(0);
+	int an = a.size(), bn = b.size();
+	if (an < bn) return karathuba(b, a);
+	if (an < 50) return multifly(a, b);
+
+	size_t half = an / 2;
+
+	veci a0(a.begin(), a.begin() + half);
+	veci a1(a.begin() + half, a.end());
+	veci b0(b.begin(), b.begin() + min(half, b.size()));
+	veci b1(b.begin() + min(b.size(), half), b.end());
+
+	veci z0 = karathuba(a0, b0);
+	veci z2 = karathuba(a1, b1);
+
+	addTo(a1, a0, half);
+	addTo(b1, b0, half);
+
+	veci z1 = karathuba(a1, b1);
+	subFrom(z1, z0);
+	subFrom(z1, z2);
+
+	veci ret(an + half + half + 1);
+	addTo(ret, z2, half + half);
+	addTo(ret, z1, half);
+	addTo(ret, z0, 0);
+
+	return ret;
+}
+
+int main() {
+
+}

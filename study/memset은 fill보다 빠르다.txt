@@ -1,0 +1,24 @@
+fill은 내부적으로 memset으로 구현돼있기 때문이다.
+아래 fill의 정의부 참조
+
+template<class _FwdIt,
+	class _Ty> inline
+	void _Fill_unchecked1(_FwdIt _First, _FwdIt _Last, const _Ty& _Val, true_type)
+	{	// copy _Val through [_First, _Last), memset optimization
+	_CSTD memset(_First, static_cast<unsigned char>(_Val), _Last - _First);
+	}
+
+template<class _FwdIt,
+	class _Ty> inline
+	void _Fill_unchecked(_FwdIt _First, _FwdIt _Last, const _Ty& _Val)
+	{	// copy _Val through [_First, _Last), choose optimization
+	_Fill_unchecked1(_First, _Last, _Val, _Fill_memset_is_safe(_First, _Val));
+	}
+
+template<class _FwdIt,
+	class _Ty> inline
+	void fill(_FwdIt _First, _FwdIt _Last, const _Ty& _Val)
+	{	// copy _Val through [_First, _Last)
+	_DEBUG_RANGE(_First, _Last);
+	_Fill_unchecked(_Unchecked(_First), _Unchecked(_Last), _Val);
+	}

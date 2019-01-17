@@ -1,0 +1,60 @@
+#include <iostream>
+#include <string>
+#include <map>
+#include <algorithm>
+using namespace std;
+
+int m, q, n, choice[100][500];
+char word[500][11], ocr[100][11];
+double B[500], T[500][500], M[500][500], cache[100][500];
+map<string, int> Map;
+
+double DP(int index, int before) { // 비터비 알고리즘 구현
+	if (index == n) return 1;
+
+	double &ret = cache[index][before];
+	if (ret != -1) return ret;
+
+	ret = 0;
+	double temp;
+	for (int i = 0; i < m; i++) { // 결과로 예상되는 값을 계산
+		if (index == 0) temp = B[i] * M[i][Map[ocr[0]]] * DP(1, i);
+		else temp = T[before][i] * M[i][Map[ocr[index]]] * DP(index + 1, i);
+
+		if (ret < temp) { // 최적값 설정
+			ret = temp;
+			choice[index][before] = i;
+		}
+	}
+	return ret;
+}
+
+void reconstruct(int index, int before) {
+	if (index == n) printf("\n");
+	else {
+		int cur = choice[index][before];
+		printf("%s ", word[cur]);
+		reconstruct(index + 1, cur);
+	}
+}
+
+int main() {
+	// 각각의 확률 정의
+	scanf("%d %d", &m, &q);
+	for (int i = 0; i < m; i++) {
+		scanf(" %s", word[i]);
+		Map[word[i]] = i;
+	}
+	for (int i = 0; i < m; i++) scanf(" %lf", &B[i]);
+	for (int i = 0; i < m; i++) for (int j = 0; j < m; j++) scanf(" %lf", &T[i][j]);
+	for (int i = 0; i < m; i++) for (int j = 0; j < m; j++) scanf(" %lf", &M[i][j]);
+
+	while (q--) {
+		scanf(" %d", &n);
+		for (int i = 0; i < n; i++) scanf(" %s", ocr[i]);
+		fill(cache[0], cache[n], -1.0);
+		
+		DP(0, 0);
+		reconstruct(0, 0);
+	}
+}

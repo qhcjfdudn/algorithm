@@ -1,3 +1,6 @@
+비터비 알고리즘 : 은닉 마르코프 연쇄(Hidden Markov Model, HMM)를 이용하여
+HMM의 관측 결과가 주어질 때 가장 가능성이 높은 실제 상태를 구현하는 알고리즘
+
 #include <iostream>
 #include <string>
 #include <map>

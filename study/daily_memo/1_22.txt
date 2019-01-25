@@ -18,3 +18,44 @@ i 1
 j 1
   
 무조건 비트마스크.
+
+속할 때는 큰 것이 또 front로 간다.
+
+return을 물려오는 길이로?
+
+앞에께 다 있고, 뒤로 더해지는 것이 DP
+
+overlap을 최대화 하는 배치를 찾는다.
+
+전체 단어에서 겹치는 부분을 크게 한다.
+
+특정 단어 순서대로 나왔을 때 겹치는 부분이 가장 많은 순서가 답. 함수로는 그 순서를 캐시에 넣는거지.
+그러고 캐시를 탐색해나가면 답인거지.
+
+전처리로 완전히 포함되는 문자열을 지운다.
+
+굉장히 풀기 귀찮은 문제...
+
+1
+14
+aaaaaaaaaa
+aaaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaa
+a
+aaaaaaaaaaaaaaaaaaaaaaaa
+aa
+aa
+aa
+aaaa
+aaaaaaaaaaaa
+aaaaaaa
+aaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaabaa
+baaa
+
+동적계획법에서 경우의 수나 최대, 최소 이런게 아닌 최적 해의 형태를 출력하라는 경우엔
+우선 동적계획법을 구성하고, 이를 통해 얻을 수 있는 최적해에 대한 알고리즘을 따로 구현한다.
+
+이런 문제를 어떻게 바로 풀지??
+
+따라서 문제를 분할할 줄 알아야 해

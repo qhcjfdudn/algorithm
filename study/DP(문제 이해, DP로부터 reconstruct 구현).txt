@@ -1,0 +1,117 @@
+#include <iostream>
+#include <string>
+#include <cstring>
+#include <vector>
+using namespace std;
+
+int C, k, cache[16][1 << 15], choice[16][1 << 15], overlap[15][15];
+vector<string> s;
+
+bool Include(int p, int q) {
+	if (s[p].size() < s[q].size()) return false;
+	if (s[q].size() == 0) return false;
+
+	int flen = s[p].size(), blen = s[q].size();
+	for (int i = 0; i < flen - blen + 1; i++) {
+		bool incl = true;
+		for (int j = i; j - i < blen; j++) {
+			if (s[p][j] != s[q][j - i]) { incl = false; break; }
+		}
+		if (incl) return true;
+	}
+	return false;
+}
+
+void optStr() {
+	for (int i = 0; i < k; i++) {
+		for (int j = 0; j < k; j++) {
+			if (i == j) continue;
+			if (Include(i, j)) s[j] = "";
+		}
+	}
+	int cnt = 0;
+	vector<string> temp;
+	for (auto it : s) {
+		if (it.size() != 0) {
+			temp.push_back(it);
+			cnt++;
+		}
+	}
+	k = cnt;
+	s = temp;
+}
+
+void makeOverlap() { // 문제를 푸는 핵심을 이해
+	int flen, blen;
+	for (int i = 0; i < k; i++) {
+		flen = s[i].size();
+		for (int j = 0; j < k; j++) {
+			if (i == j) continue;
+			blen = s[j].size();
+			for (int k = 1; k < flen; k++) {
+				bool sub = true;
+				for (int p = 0; k + p < flen && p < blen; p++) {
+					if (s[i][k + p] != s[j][p]) { sub = false; break; }
+				}
+				if (sub) {
+					overlap[i][j] = flen - k;
+					break;
+				}
+			}
+		}
+	}
+}
+
+int DP(int front, int used) { // 문제를 푸는 DP는 따로 있고, 답은 따로 reconstruct에서 구현
+	if (used == (1 << k) - 1) return s[front].size();
+
+	int &ret = cache[front + 1][used];
+	if (ret != -1) return ret;
+
+	int temp = ret = 601;
+
+	for (int i = 0; i < k; i++) {
+		if (front == -1) temp = DP(i, used | (1 << i));
+		else if (!(used & (1 << i))) {
+			temp = s[front].size() - overlap[front][i];
+			temp += DP(i, used | (1 << i));
+		}
+		if (ret > temp) {
+			ret = temp;
+			choice[front + 1][used] = i;
+		}
+	}
+	return ret;
+}
+
+void reconstruct(int front, int used) {
+	if (used == ((1 << k) - 1)) { cout << endl; return; }
+
+	int next = choice[front + 1][used];
+	if (front == -1) cout << s[next];
+	else cout << s[next].substr(overlap[front][next]);
+	reconstruct(next, used | (1 << next));
+}
+
+int main() {
+	cin >> C;
+	while (C--) {
+		cin >> k;
+		s.clear();
+
+		for (int i = 0; i < k; i++) {
+			string temp;
+			cin >> temp;
+			s.push_back(temp);
+		}
+		memset(cache, -1, sizeof(cache));
+		memset(overlap, 0, sizeof(overlap));
+		memset(choice, -1, sizeof(choice));
+
+		optStr();
+		makeOverlap();
+
+		DP(-1, 0);
+		reconstruct(-1, 0);
+	}
+}

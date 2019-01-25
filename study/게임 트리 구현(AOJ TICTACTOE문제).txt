@@ -1,0 +1,92 @@
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include <vector>
+using namespace std;
+
+typedef vector<string> vecs;
+
+int C, cache[19683]; // 2 : x, 1 : o, 0 : .
+char player;
+vecs board;
+
+char firstTurn(vecs board) {
+	int cntX = 0, cntO = 0;
+	for (int i = 0; i < 3; i++) 
+		for (int j = 0; j < 3; j++) 
+			if (board[i][j] == 'x') cntX++;
+			else if (board[i][j] == 'o') cntO++;
+
+	if (cntX == cntO) return 'x';
+	return 'o';
+}
+
+int bijection(const vecs board) {
+	int ret = 0;
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			ret *= 3;
+			if (board[i][j] == 'o') ret++;
+			else if (board[i][j] == 'x') ret += 2;
+		}
+	}
+	return ret;
+}
+
+bool isFinished(vecs board, char player) {
+	if (board[0][0] == player) {
+		if (board[0][1] == player && board[0][2] == player) return true;
+		if (board[1][0] == player && board[2][0] == player) return true;
+	}
+	if (board[2][2] == player) {
+		if (board[2][0] == player && board[2][1] == player) return true;
+		if (board[0][2] == player && board[1][2] == player) return true;
+	}
+	if (board[1][1] == player) {
+		if (board[1][0] == player && board[1][2] == player) return true;
+		if (board[0][1] == player && board[2][1] == player) return true;
+		if (board[0][0] == player && board[2][2] == player) return true;
+		if (board[2][0] == player && board[0][2] == player) return true;
+	}
+	return false;
+}
+
+int canWin(vecs &board, char player) { // 내가 이기면 1 상대가 이기면 -1
+	if (isFinished(board, 'o' + 'x' - player)) return -1;
+
+	int &ret = cache[bijection(board)];
+	if (ret != -2) return ret;
+
+	int minValue = 2;
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			if (board[i][j] == '.') {
+				board[i][j] = player;
+				minValue = min(minValue, canWin(board, 'o' + 'x' - player));
+				board[i][j] = '.';
+			}
+		}
+	}
+	if (minValue == 2 || minValue == 0) return ret = 0;
+	return ret = -minValue; // 리턴을 음수로 하면 상대와 나의
+}							// 승리 값을 서로의 역원으로 사용 가능.
+
+int main() {
+	cin >> C;
+	while (C--) {
+		board.clear();
+		for (int i = 0; i < 3; i++) {
+			string temp;
+			cin >> temp;
+			board.push_back(temp);
+		}
+		fill(cache, cache + 19683, -2);
+
+		player = firstTurn(board);
+		int winner = canWin(board, player);
+
+		if(winner == 1) cout << player << endl;
+		else if (winner == -1) cout << (char)('x' + 'o' - player) << endl;
+		else cout << "TIE" << endl;
+	}
+}

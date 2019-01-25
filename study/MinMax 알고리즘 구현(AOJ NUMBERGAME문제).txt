@@ -1,0 +1,32 @@
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+const int NEGINF = -50001;
+int C, n, temp, cache[51][51], point[50];
+
+int DP(int s, int e) { // minmax 알고리즘
+	if (s == e) return 0;
+
+	int &ret = cache[s][e];
+	if (ret != NEGINF) return ret;
+
+						// 상대가 최대화한 점수를 내 점수에서 뺀다.
+	ret = max(point[s] - DP(s + 1, e), point[e - 1] - DP(s, e - 1)); // 점수 가져가기
+	if (e - s > 1) {
+		ret = max(ret, - DP(s + 2, e)); // 왼쪽 두 개 지우기
+		ret = max(ret, - DP(s, e - 2)); // 오른쪽 두 개 지우기
+	}
+	return ret;
+}
+
+int main() {
+	cin >> C;
+	while (C--) {
+		cin >> n;
+		fill(cache[0], cache[50], NEGINF);
+		for (int i = 0; i < n; i++) cin >> point[i];
+
+		cout << DP(0, n) << endl;
+	}
+}

@@ -1,0 +1,64 @@
+#include <iostream>
+#include <cstring>
+#include <vector>
+using namespace std;
+
+typedef vector<int> veci;
+int C, board;
+char cache[1 << 25];
+veci moves;
+
+int cell(int y, int x) { return 1 << (y * 5 + x); }
+
+void precalc() {
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			veci cells;
+			for (int i = 0; i < 2; i++)
+				for (int j = 0; j < 2; j++)
+					cells.push_back(cell(y + i, x + j));
+			int square = cells[0] + cells[1] + cells[2] + cells[3];
+			for (int i = 0; i < 4; i++) moves.push_back(square - cells[i]);
+		}
+	}
+	for (int y = 0; y < 5; y++)
+		for (int x = 0; x < 4; x++)
+			moves.push_back(cell(y, x) + cell(y, x + 1));
+
+	for (int y = 0; y < 4; y++)
+		for (int x = 0; x < 5; x++)
+			moves.push_back(cell(y, x) + cell(y + 1, x));
+
+}
+
+char DP(int board) {
+	char &ret = cache[board];
+	if (ret != -1) return ret;
+
+	ret = 0;
+	for (int i = 0; i < moves.size(); i++) {
+		if ((moves[i] & board) == 0)
+			if (DP(moves[i] | board) == 0) {
+				ret = 1;
+				break;
+			}
+	}
+	return ret;
+}
+
+int main() {
+	memset(cache, -1, sizeof(cache));
+	precalc();
+	cin >> C;
+	while (C--) {
+		board = 0;
+		for (int i = 0; i < 25; i++) {
+			char temp;
+			cin >> temp;
+			board <<= 1;
+			if (temp == '#') board++;
+		}
+		if (DP(board) == 1) cout << "WINNING" << endl;
+		else cout << "LOSING" << endl;
+	}
+}

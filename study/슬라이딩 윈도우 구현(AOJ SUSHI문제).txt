@@ -1,0 +1,33 @@
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+int C, N, M, dish[20], pref[20], c[201]; // c[] : 슬라이딩 윈도우 배열
+
+int DP() {
+	int ret = 0;
+	for (int m = 0; m <= M; m++) {
+		for (int i = 0; i < N; i++) {
+			if (m - dish[i] >= 0) { // 슬라이딩 윈도우
+				c[m % 201] = max(c[m % 201], pref[i] + c[(m - dish[i]) % 201]);
+			}
+		}
+		ret = max(ret, c[m % 201]);
+	}
+	return ret;
+}
+
+int main() {
+	cin >> C;
+	while (C--) {
+		cin >> N >> M;
+		M /= 100;
+		for (int i = 0; i < N; i++) {
+			cin >> dish[i] >> pref[i];
+			dish[i] /= 100;
+		}
+		fill(c, c + 201, 0);
+
+		cout << DP() << endl;
+	}
+}

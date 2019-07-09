@@ -1,0 +1,104 @@
+#include <iostream>
+using namespace std;
+
+#define MAX_SIZE 100002
+
+void _swap(int *a, int *b) {
+	int temp = *a;
+	*a = *b;
+	*b = temp;
+}
+
+// 우선순위 큐 구현 구조체
+struct Q {
+	int A[MAX_SIZE]; // 큐를 담을 배열
+	int _size;	// 크기
+	int _op;	// '<' : min heap, '>' max heap
+	
+	void init(int op) {	// 초기화
+		_size = 0;
+		_op = op;
+	}
+
+	// 삽입
+	void push(int num) {
+		A[_size] = num;
+		int idx = _size++;
+		while (idx != 0) { // idx가 top이 아니거나 더이상 값의 변동이 없을 때까지
+			int p = (idx - 1) / 2;
+
+			if (_op == '<')	// min힙일 때
+				if (A[idx] < A[p]) _swap(&A[idx], &A[p]);
+				else break;
+			else	//max힙일 때
+				if (A[idx] > A[p]) _swap(&A[idx], &A[p]);
+				else break;
+
+			idx = p;
+		}
+	}
+
+	// 삭제
+	void pop() {
+		A[0] = A[--_size];
+		int idx = 0;
+
+		while (1) {
+			int left = idx * 2 + 1, right = idx * 2 + 2;	// 현재 노드의 좌우 노드 인덱스
+			if (left >= _size) break;
+
+			int next = idx;
+			if (_op == '<') {	// min힙일 때
+				if (A[next] > A[left]) next = left;
+				if (right < _size && A[next] > A[right]) next = right;
+			}
+			else {	// max힙일 때
+				if (A[next] < A[left]) next = left;
+				if (right < _size && A[next] < A[right]) next = right;
+			}
+			if (idx == next) break;	// 노드가 변경되지 않을 경우
+
+			_swap(&A[next], &A[idx]);
+			idx = next;
+		}
+	}
+
+	int top() const { return A[0]; }	// top 반환
+	bool isEmpty() const { return !_size; }	// 큐가 비어있는지
+	int size() { return _size; }	// 큐의 크기 반환
+};
+
+const int MOD = 20090711;
+int C, N, a, b;
+
+int make_key(long long before) { return (before * a + b) % MOD; }	// 입력 값 생성 함수
+
+long long solve() {	// 핵심 아이디어 : 오름차순 정렬된 데이터의 가운데 인덱스를 기준으로 왼쪽은 max힙, 
+					// 오른쪽은 min힙에 넣어 값을 유지하면 max힙 또는 min힙의 top이 전체 값의 가운데가 될 것.
+	long long ret = 0;
+	Q minq, maxq;
+	minq.init('<'); maxq.init('>');
+	int v = 1983;
+	while (N--) {
+		if (minq.size() < maxq.size()) minq.push(v);	// 항상 max힙의 사이즈는 min힙의 사이즈보다 1 크거나 같다
+		else maxq.push(v);
+
+		if (!minq.isEmpty() && minq.top() < maxq.top()) {	// 각각의 힙의 top값이 서로 반대될 경우 재정렬
+			maxq.push(minq.top());
+			minq.push(maxq.top());
+			maxq.pop(); minq.pop();
+		}
+		ret += maxq.top();
+		ret %= MOD;
+		v = make_key(v);
+	}
+	return ret;
+}
+
+int main() {
+	cin >> C;
+	while (C--) {
+		cin >> N >> a >> b;
+		cout << solve() << endl;
+	}
+}

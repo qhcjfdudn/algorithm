@@ -14,7 +14,7 @@ struct Q {
 	int A[MAX_SIZE]; // 큐를 담을 배열
 	int _size;	// 크기
 	int _op;	// '<' : min heap, '>' max heap
-	
+
 	void init(int op) {	// 초기화
 		_size = 0;
 		_op = op;

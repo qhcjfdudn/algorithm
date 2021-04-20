@@ -5,48 +5,47 @@ using namespace std;
 
 typedef vector<int> veci;
 
-void normalize(veci &a) {
-	int len = a.size();
-	for (int i = 0; i < len - 1; i++) {
-		if (a[i] < 0) {
-			int num = (abs(a[i]) + 9) / 10;
-			a[i + 1] -= num;
-			a[i] += num * 10;
+void normalize(veci& num) {
+	num.push_back(0);
+	for (int i = 0; i < num.size() - 1; i++) {
+		if (num[i] < 0) {
+			int borrow = (abs(num[i]) + 9) / 10;
+			num[i + 1] -= borrow;
+			num[i] += borrow * 10;
 		}
 		else {
-			a[i + 1] += a[i] / 10;
-			a[i] %= 10;
+			num[i + 1] += num[i] / 10;
+			num[i] %= 10;
 		}
 	}
-	if (a[len - 1] >= 10) {
-		a.push_back(a[len - 1] / 10);
-		a[len - 1] %= 10;
-	}
-	else if (a[len - 1] == 0) a.pop_back();
+	while (num.back() == 0) num.pop_back();
 }
 
-veci multifly(veci &a, veci &b) {
-	int len = a.size() + b.size() + 1;
-	veci c(len);
+veci multifly(veci& a, veci& b) {
+	veci ret(a.size() + b.size() + 1);
 
-	
-	return veci(0);
+	for (int i = 0; i < a.size(); ++i)
+		for (int j = 0; j < b.size(); ++j)
+			ret[i + j] += a[i] * b[j];
 
+	normalize(ret);
+
+	return ret;
 }
 
-void addTo(veci &a, veci &b, int k) {
-	int len = b.size;
+void addTo(veci& a, veci& b, int k) {
+	int len = b.size();
 	for (int i = 0; i < len; i++) a[k + i] += b[i];
 	normalize(a);
 }
 
-void subFrom(veci &a, veci &b) {
+void subFrom(veci& a, veci& b) {
 	int len = b.size();
 	for (int i = 0; i < len; i++) a[i] -= b[i];
 	normalize(a);
 }
 
-veci karathuba(veci &a, veci &b) { // º¤ÅÍÀÇ ÀÎµ¦½º°¡ ÀÚ¸®¼ö
+veci karathuba(veci& a, veci& b) { // º¤ÅÍÀÇ ÀÎµ¦½º°¡ ÀÚ¸®¼ö
 	if (a.empty() || b.empty()) return veci(0);
 	int an = a.size(), bn = b.size();
 	if (an < bn) return karathuba(b, a);
